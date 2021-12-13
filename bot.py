@@ -5,12 +5,16 @@ import requests
 import csv
 import itertools
 
+potty_word_file = "potty_words.txt"
+self_depr_file = "self_depr.txt"
+API_KEY = 'KEY GOES HERE'
+responses = "data.csv"
+
 
 def run_bot(bot_data):
-    potty_words = ['disab', 'dumb', 'reta',
-                   'idi', 'stupid', 'simpleton', 'slow']
-
-    self_depr = ['slow', 'sad', 'idiot', 'dum', 'bad']
+    # Loading in words
+    potty_words = load_file(potty_word_file)
+    self_depr = load_file(potty_word_file).extend(load_file(self_depr_file))
 
     client = discord.Client()
     discord.Activity(name="Beep boop. I am wackymaster's bot", type=5)
@@ -26,7 +30,7 @@ def run_bot(bot_data):
         if message.author == client.user:
             return
 
-        # Commands
+        # Basic commands to get running
         if message.content.startswith('$commit'):
             URL = "http://whatthecommit.com"
             r = requests.get(url=URL)
@@ -45,6 +49,7 @@ def run_bot(bot_data):
 
         # Key word responses
         for word in bot_data:
+            # i variables are internal, and have an integer value attached
             if word.startswith('i'):
                 continue
             if word in message.content.lower():
@@ -65,16 +70,22 @@ def run_bot(bot_data):
         if str(message.author.name) == "QLF9":
             for word in itertools.chain(potty_words, self_depr):
                 if word in message.content.lower():
-                    await message.channel.send('You\'re on your own')
+                    await message.channel.send('It\'s ok ')
                     break
 
-        # async with message.channel.typing():
-        #     await asyncio.sleep(100)
-    client.run('TOKEN_ID')
+    client.run(API_KEY)
+
+
+def load_file(filename):
+    words = []
+    with open(filename, "r") as file:
+        for line in file:
+            words.append(line.strip())
+    return words
 
 
 def update_csv(bot_data):
-    with open("data.csv", "w") as csv_file:
+    with open(responses, "w") as csv_file:
         writer = csv.writer(csv_file)
         for key in bot_data:
             writer.writerow((key, bot_data[key]))
@@ -84,7 +95,7 @@ def update_csv(bot_data):
 
 def load_data():
     bot_data = {}
-    with open('data.csv') as csv_file:
+    with open(responses) as csv_file:
         reader = csv.reader(csv_file)
         for line in reader:
             if not line:
