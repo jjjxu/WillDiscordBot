@@ -7,11 +7,12 @@ import itertools
 
 potty_word_file = "potty_words.txt"
 self_depr_file = "self_depr.txt"
-API_KEY = 'KEY GOES HERE'
-responses = "data.csv"
+API_KEY = "API_KEY_GOES_HERE"
+data = "data.csv"
+responses = "responses.csv"
 
 
-def run_bot(bot_data):
+def run_bot(bot_data, responses):
     # Loading in words
     potty_words = load_file(potty_word_file)
     self_depr = load_file(potty_word_file).extend(load_file(self_depr_file))
@@ -48,12 +49,9 @@ def run_bot(bot_data):
             await message.channel.send(f'Current Time is {current_time}')
 
         # Key word responses
-        for word in bot_data:
-            # i variables are internal, and have an integer value attached
-            if word.startswith('i'):
-                continue
+        for word in responses:
             if word in message.content.lower():
-                await message.channel.send(bot_data[word])
+                await message.channel.send(responses[word])
                 break
 
         # No mean words on my watch
@@ -84,32 +82,32 @@ def load_file(filename):
     return words
 
 
-def update_csv(bot_data):
-    with open(responses, "w") as csv_file:
+def update_csv(data, filename):
+    with open(filename, "w") as csv_file:
         writer = csv.writer(csv_file)
-        for key in bot_data:
-            writer.writerow((key, bot_data[key]))
+        for key in data:
+            writer.writerow((key, data[key]))
     csv_file.close()
     return
 
 
-def load_data():
-    bot_data = {}
-    with open(responses) as csv_file:
+def load_data(filename):
+    data = {}
+    with open(filename) as csv_file:
         reader = csv.reader(csv_file)
         for line in reader:
             if not line:
                 continue
-            bot_data[line[0]] = int(
-                line[1]) if line[0].startswith('i') else line[1]
+            data[line[0]] = int(line[1]) if line[1].isdigit() else line[1]
     csv_file.close()
-    return bot_data
+    return data
 
 
 def main():
-    bot_data = load_data()
-    print(bot_data)
-    run_bot(bot_data)
+    bot_data = load_data(data)
+    response_data = load_data(responses)
+    print(bot_data, response_data)
+    run_bot(bot_data, response_data)
 
 
 if __name__ == "__main__":
