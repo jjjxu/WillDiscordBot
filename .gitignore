@@ -1,0 +1,14 @@
+tomcat.*
+build
+.gradle
+content
+.classpath
+.project
+.settings
+/bin/
+*.class
+*.jar
+*.DS_Store
+out
+.idea
+*.iml
