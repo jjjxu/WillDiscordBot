@@ -15,6 +15,7 @@ self_depr_file = "self_depr.txt"
 API_KEY = os.environ['API_KEY']
 data = "data.csv"
 responses_file = "responses.csv"
+RESPONSE_RATE = 0.1
 
 
 def run_bot(bot_data, responses):
@@ -54,7 +55,7 @@ def run_bot(bot_data, responses):
                     break
 
         # Adding rng to be less spammy
-        if random.random() < 0.95:
+        if random.random() > RESPONSE_RATE:
             return
 
         # Basic commands to get running
@@ -77,7 +78,7 @@ def run_bot(bot_data, responses):
         # Key word responses
         for word in responses:
             if word in message.content.lower():
-                await message.channel.send(responses[word])
+                await message.channel.send(random.choice(responses[word]))
                 break
 
         if str(message.author.name) == "QLF9":
@@ -113,7 +114,10 @@ def load_data(filename):
         for line in reader:
             if not line:
                 continue
-            data[line[0]] = int(line[1]) if line[1].isdigit() else line[1]
+            if line[1].isdigit():
+                data[line[0]] = int(line[1])
+            else:
+                data[line[0]] = line[1:]
     csv_file.close()
     return data
 
