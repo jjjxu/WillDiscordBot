@@ -15,7 +15,7 @@ self_depr_file = "self_depr.txt"
 API_KEY = os.environ['API_KEY']
 data = "data.csv"
 responses_file = "responses.csv"
-RESPONSE_RATE = 0.1
+RESPONSE_RATE = 0.15
 
 
 def run_bot(bot_data, responses):
@@ -43,21 +43,6 @@ def run_bot(bot_data, responses):
         if message.author == client.user:
             return
 
-        # No mean words
-        if str(message.author.name) == "eszlàc":
-            for word in potty_words:
-                if word in message.content.lower():
-                    bot_data['icount'] += 1
-                    count = bot_data['icount']
-                    await message.channel.send('charles_says_disabled_count++')
-                    await message.channel.send(f'Occurences: {count} :(')
-                    update_csv(bot_data)
-                    break
-
-        # Adding rng to be less spammy
-        if random.random() > RESPONSE_RATE:
-            return
-
         # Basic commands to get running
         if message.content.startswith('$commit'):
             URL = "http://whatthecommit.com"
@@ -74,6 +59,21 @@ def run_bot(bot_data, responses):
         if message.content.startswith('$time'):
             current_time = datetime.now().strftime("%H:%M:%S")
             await message.channel.send(f'Current Time is {current_time}')
+
+        # No mean words
+        if str(message.author.name) == "eszlàc":
+            for word in potty_words:
+                if word in message.content.lower():
+                    bot_data['icount'] += 1
+                    count = bot_data['icount']
+                    await message.channel.send('charles_says_disabled_count++')
+                    await message.channel.send(f'Occurences: {count} :(')
+                    update_csv(bot_data)
+                    break
+
+        # Adding rng to be less spammy
+        if random.random() > RESPONSE_RATE:
+            return
 
         # Key word responses
         for word in responses:
