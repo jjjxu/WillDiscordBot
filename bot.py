@@ -4,13 +4,13 @@ from datetime import datetime
 import requests
 import csv
 import itertools
-import asyncio
+import random
 from discord.ext import tasks
 
 
 potty_word_file = "potty_words.txt"
 self_depr_file = "self_depr.txt"
-API_KEY = "API_KEY"
+API_KEY = ""
 data = "data.csv"
 responses_file = "responses.csv"
 
@@ -23,12 +23,11 @@ def run_bot(bot_data, responses):
     client = discord.Client()
     discord.Activity(name="Beep boop. I am wackymaster's bot", type=5)
 
-    @tasks.loop(seconds=10)
+    # Update responses each minute
+    @tasks.loop(seconds=60)
     async def refresh_responses():
-        print("refreshing")
         nonlocal responses
         responses = load_data(responses_file)
-        print(responses)
 
     @client.event
     async def on_ready():
@@ -37,9 +36,23 @@ def run_bot(bot_data, responses):
 
     @client.event
     async def on_message(message):
-
         # No infinite loops please
         if message.author == client.user:
+            return
+
+        # No mean words
+        if str(message.author.name) == "eszlàc":
+            for word in potty_words:
+                if word in message.content.lower():
+                    bot_data['icount'] += 1
+                    count = bot_data['icount']
+                    await message.channel.send('charles_says_disabled_count++')
+                    await message.channel.send(f'Occurences: {count} :(')
+                    update_csv(bot_data)
+                    break
+
+        # Adding rng to be less spammy
+        if random.random() < 0.95:
             return
 
         # Basic commands to get running
@@ -64,17 +77,6 @@ def run_bot(bot_data, responses):
             if word in message.content.lower():
                 await message.channel.send(responses[word])
                 break
-
-        # No mean words on my watch
-        if str(message.author.name) == "eszlàc":
-            for word in potty_words:
-                if word in message.content.lower():
-                    bot_data['icount'] += 1
-                    count = bot_data['icount']
-                    await message.channel.send('charles_says_disabled_count++')
-                    await message.channel.send(f'Occurences: {count} :(')
-                    update_csv(bot_data)
-                    break
 
         if str(message.author.name) == "QLF9":
             for word in itertools.chain(potty_words, self_depr):
