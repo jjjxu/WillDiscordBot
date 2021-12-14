@@ -4,13 +4,14 @@ from datetime import datetime
 import requests
 import csv
 import itertools
+import os
 import asyncio
 from discord.ext import tasks
 
 
 potty_word_file = "potty_words.txt"
 self_depr_file = "self_depr.txt"
-API_KEY = "API_KEY"
+API_KEY = os.environ['API_KEY']
 data = "data.csv"
 responses_file = "responses.csv"
 
