@@ -1,4 +1,4 @@
-from os import write
+import os
 import discord
 from datetime import datetime
 import requests
@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 potty_word_file = "potty_words.txt"
 self_depr_file = "self_depr.txt"
-API_KEY = ""
+API_KEY = os.environ['API_KEY']
 data = "data.csv"
 responses_file = "responses.csv"
 
