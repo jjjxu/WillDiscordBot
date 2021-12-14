@@ -4,12 +4,15 @@ from datetime import datetime
 import requests
 import csv
 import itertools
+import asyncio
+from discord.ext import tasks
+
 
 potty_word_file = "potty_words.txt"
 self_depr_file = "self_depr.txt"
-API_KEY = "API_KEY_GOES_HERE"
+API_KEY = "API_KEY"
 data = "data.csv"
-responses = "responses.csv"
+responses_file = "responses.csv"
 
 
 def run_bot(bot_data, responses):
@@ -20,9 +23,17 @@ def run_bot(bot_data, responses):
     client = discord.Client()
     discord.Activity(name="Beep boop. I am wackymaster's bot", type=5)
 
+    @tasks.loop(seconds=10)
+    async def refresh_responses():
+        print("refreshing")
+        nonlocal responses
+        responses = load_data(responses_file)
+        print(responses)
+
     @client.event
     async def on_ready():
         print('We have logged in as {0.user}'.format(client))
+        refresh_responses.start()
 
     @client.event
     async def on_message(message):
@@ -105,7 +116,7 @@ def load_data(filename):
 
 def main():
     bot_data = load_data(data)
-    response_data = load_data(responses)
+    response_data = load_data(responses_file)
     print(bot_data, response_data)
     run_bot(bot_data, response_data)
 
