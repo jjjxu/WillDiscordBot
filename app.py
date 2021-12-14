@@ -6,6 +6,8 @@ import csv
 import itertools
 import random
 from discord.ext import tasks
+from flask import Flask
+app = Flask(__name__)
 
 
 potty_word_file = "potty_words.txt"
@@ -116,6 +118,7 @@ def load_data(filename):
     return data
 
 
+@app.route("/")
 def main():
     bot_data = load_data(data)
     response_data = load_data(responses_file)
