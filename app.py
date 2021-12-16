@@ -13,8 +13,7 @@ app = Flask(__name__)
 potty_word_file = "potty_words.txt"
 self_depr_file = "self_depr.txt"
 API_KEY = os.environ['API_KEY']
-ezslac_count = "ICOUNT"
-env_variables = [ezslac_count]
+data = "data.csv"
 responses_file = "responses.csv"
 RESPONSE_RATE = 0.15
 
@@ -65,11 +64,11 @@ def run_bot(bot_data, responses):
         if str(message.author.name) == "eszlàc":
             for word in potty_words:
                 if word in message.content.lower():
-                    bot_data[ezslac_count] += 1
-                    count = bot_data[ezslac_count]
+                    bot_data['icount'] += 1
+                    count = bot_data['icount']
                     await message.channel.send('charles_says_disabled_count++')
                     await message.channel.send(f'Occurences: {count} :(')
-                    update_env(bot_data)
+                    update_csv(bot_data)
                     break
 
         # Adding rng to be less spammy
@@ -99,18 +98,13 @@ def load_file(filename):
     return words
 
 
-def update_env(data):
-    for key in data:
-        os.environ[key] = data[key]
+def update_csv(data, filename):
+    with open(filename, "w") as csv_file:
+        writer = csv.writer(csv_file)
+        for key in data:
+            writer.writerow((key, data[key]))
+    csv_file.close()
     return
-
-
-def load_env(vars):
-    data = {}
-    for key in vars:
-        val = os.environ[key]
-        data[key] = int(val) if val.isdigit() else val
-    return data
 
 
 def load_data(filename):
@@ -130,7 +124,7 @@ def load_data(filename):
 
 @app.route("/")
 def main():
-    bot_data = load_env(env_variables)
+    bot_data = load_data(data)
     response_data = load_data(responses_file)
     print(bot_data, response_data)
     run_bot(bot_data, response_data)
