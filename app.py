@@ -15,7 +15,7 @@ self_depr_file = "self_depr.txt"
 API_KEY = os.environ['API_KEY']
 data = "data.csv"
 responses_file = "responses.csv"
-RESPONSE_RATE = 0.15
+RESPONSE_RATE = 0.10
 
 
 def run_bot(bot_data, responses):
@@ -43,17 +43,16 @@ def run_bot(bot_data, responses):
         if message.author == client.user:
             return
 
+        # Direct message
+        if "wackybot" in message.content.lower():
+            await message.channel.send(random.choice(responses["wackybot"]))
+
         # Basic commands to get running
         if message.content.startswith('$commit'):
             URL = "http://whatthecommit.com"
             r = requests.get(url=URL)
             commit = r.text.split('<p>')[1].split('</p>')[0].strip()
             await message.channel.send(commit)
-        if 'joke' in message.content.lower():
-            URL = "https://icanhazdadjoke.com/slack"
-            r = requests.get(url=URL)
-            await message.channel.send("Ahh, you have requested a joke I see...")
-            await message.channel.send(r.json()['attachments'][0]['text'])
         if message.content.startswith('$stupidcommit'):
             await message.channel.send(f"Don't mess with me {message.author}")
         if message.content.startswith('$time'):
@@ -80,6 +79,13 @@ def run_bot(bot_data, responses):
             if word in message.content.lower():
                 await message.channel.send(random.choice(responses[word]))
                 break
+
+        # Jokes
+        if 'joke' in message.content.lower():
+            URL = "https://icanhazdadjoke.com/slack"
+            r = requests.get(url=URL)
+            await message.channel.send("Ahh, you have requested a joke I see...")
+            await message.channel.send(r.json()['attachments'][0]['text'])
 
         if str(message.author.name) == "QLF9":
             for word in itertools.chain(potty_words, self_depr):
